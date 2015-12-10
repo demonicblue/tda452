@@ -52,10 +52,10 @@ arbExpr = undefined
 instance Arbitrary Expr where
   arbitrary = sized arbExpr
 
----- F ----
+---- F ---- Henrik
 simplify :: Expr -> Expr
 simplify = undefined
 
----- G ----
+---- G ---- Matthias
 differentiate :: Expr -> Expr
 differentiate = undefined
