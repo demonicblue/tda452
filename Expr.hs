@@ -1,24 +1,37 @@
+import Parsing
+import Test.QuickCheck
+import Data.Char
+
 ---- A ----
 data Expr =
     Num Double
   | Var
   | Op OpType Expr Expr
   | Fun FunType Expr
+  deriving Show
 
 data OpType  = Mul | Add
+  deriving Show
 data FunType = Sin | Cos
+  deriving Show
 
 ---- B ----
 showExpr :: Expr -> String
 showExpr (Num n) = show n
 showExpr Var = "x"
+
+showExpr (Op Mul e1 e2) = showP e1 ++ "*" ++ showP e2
+    where showP e@(Op Add _ _) = showExprP e
+          show  e              = showExpr  e
+
 showExpr (Op t e1 e2) = showExpr e1 ++ showOp t ++ showExpr e2
--- TODO: Fix Parantheses 
 
 showExpr (Fun f e) = showFun f ++ showP e
-    where showP e@(Num _) = showExpr e
-          showP e@(Var)   = showExpr e
-          showP e         = "(" ++ showExpr e ++ ")"
+    where
+          showP e@(Op _ _ _) = showExprP e
+          showP e            = showExpr  e
+
+showExprP e = "(" ++ showExpr e ++ ")"
 
 showOp :: OpType -> String
 showOp Mul = "*"
