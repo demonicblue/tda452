@@ -60,7 +60,63 @@ eval (Fun Cos e) x = cos (eval e x)
 
 ---- D ---- Henrik + Matthias
 readExpr :: String -> Maybe Expr
-readExpr = undefined
+readExpr s = do
+             r <- parse parseExpr s
+             return $ fst r
+
+{-
+<expr> ::= <term> | <term> "+" <expr>
+<term> ::= <factor> | <factor> "*" <term>
+<factor> ::= "(" <expr> ")" | <number> -}
+
+parseExpr :: Parser Expr
+parseExpr = foldr1 (Op Add) `fmap` chain term (parseOp '+')
+
+term :: Parser Expr
+term = foldr1 (Op Mul) `fmap` chain factor (parseOp '*')
+
+parseOp :: Char -> Parser String
+parseOp c = do 
+              spaces
+              string [c]
+              spaces
+
+factor :: Parser Expr
+factor = parseP +++
+         parseFun Sin "sin" +++
+         parseFun Cos "cos" +++
+         parseVar +++
+         parseNum
+
+parseP :: Parser Expr
+parseP = do
+           char '('
+           e <- parseExpr
+           char ')'
+           return $ e
+
+parseFun :: FunType -> String -> Parser Expr
+parseFun f s = do
+               string s
+               spaces
+               e <- factor
+               return $ Fun f e
+
+parseVar :: Parser Expr
+parseVar = do
+           char 'x'
+           return Var
+
+parseNum :: Parser Expr
+parseNum = do
+           d <- readsP :: Parser Double
+           return $ Num d
+
+string :: String -> Parser String
+string s = sequence $ fmap (char) s
+
+spaces :: Parser String
+spaces = zeroOrMore (sat isSpace)
 
 ---- E ---- Matthias
 prop_ShowReadExpr :: Expr -> Bool
