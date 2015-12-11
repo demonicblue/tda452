@@ -8,12 +8,9 @@ data Expr =
   | Var
   | Op OpType Expr Expr
   | Fun FunType Expr
-  deriving Show
 
 data OpType  = Mul | Add
-  deriving Show
 data FunType = Sin | Cos
-  deriving Show
 
 ---- B ----
 showExpr :: Expr -> String
@@ -22,7 +19,7 @@ showExpr Var = "x"
 
 showExpr (Op Mul e1 e2) = showP e1 ++ "*" ++ showP e2
     where showP e@(Op Add _ _) = showExprP e
-          show  e              = showExpr  e
+          showP  e              = showExpr  e
 
 showExpr (Op t e1 e2) = showExpr e1 ++ showOp t ++ showExpr e2
 
@@ -40,6 +37,15 @@ showOp Add = " + "
 showFun :: FunType -> String
 showFun Sin = "sin "
 showFun Cos = "cos "
+
+instance Show Expr where
+  show = showExpr
+
+instance Show FunType where
+  show = showFun
+
+instance Show OpType where
+  show = showOp
 
 ---- C ----
 eval :: Expr -> Double -> Double
