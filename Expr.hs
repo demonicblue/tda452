@@ -79,4 +79,15 @@ simplify = undefined
 
 ---- G ---- Matthias
 differentiate :: Expr -> Expr
-differentiate = undefined
+differentiate (Num _) = Num 0.0
+differentiate (Var)   = Num 1.0
+differentiate (Op Add e1 e2) = (Op Add e1' e2')
+    where e1' = differentiate e1
+          e2' = differentiate e2
+differentiate (Op Mul e1 e2) = (Op Add (Op Mul e1' e2) (Op Mul e1 e2'))
+    where e1' = differentiate e1
+          e2' = differentiate e2
+
+differentiate (Fun Sin e) = Fun Cos e
+-- Cos(x)' = - Sin(x) = Sin (x + Pi)
+differentiate (Fun Cos e) = Fun Sin (Op Add e (Num 3.14159265358979323))
