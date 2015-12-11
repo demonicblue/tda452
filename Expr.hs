@@ -126,7 +126,31 @@ prop_ShowReadExpr e = e `almostEqual` fromJust (readExpr (showExpr e))
 
 -- Henrik
 arbExpr :: Int -> Gen Expr
-arbExpr = undefined
+arbExpr 0               = oneof [return Var, arbNum]
+arbExpr size | size > 0 = oneof [
+                            return Var,
+                            arbNum,
+                            arbFun (size-1),
+                            arbOp (size-1)
+                          ]
+
+arbOp :: Int -> Gen Expr
+arbOp size = do
+               e1 <- arbExpr size
+               e2 <- arbExpr size
+               op <- elements [Add,Mul]
+               return $ Op op e1 e2
+
+arbFun :: Int -> Gen Expr
+arbFun size = oneof [
+                (Fun Sin) `liftM` (arbExpr size),
+                (Fun Cos) `liftM` (arbExpr size)
+              ]
+
+arbNum :: Gen Expr
+arbNum = do
+           n <- arbitrary
+           return $ Num n
 
 instance Arbitrary Expr where
   arbitrary = sized arbExpr
