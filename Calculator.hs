@@ -16,27 +16,37 @@ canWidth  = 300
 canHeight = 300
 
 points :: Expr -> Double -> (Int,Int) -> [Point]
-points e sc (w,h) = undefined
+points e sc (w,h) = zip pixXs $ map (realToPix height sc) $ map (eval e) $ map (pixToReal width sc) pixXs
+    where 
+         pixXs :: [Double]
+         pixXs = [0.0 .. width]
+         width = fromIntegral w
+         height = fromIntegral h
 
 pixToReal :: Double -> Double -> Double -> Double
 pixToReal w sc x = (2*f) * (x / w) - f
     where f = sc * w / 2
 
 realToPix :: Double -> Double -> Double -> Double
-realToPix w sc y = w * (y + f) / (2*f)
+realToPix w sc y = w * (-y + f) / (2*f)
     where f = sc * w / 2
 
-{-
 parseElem :: Elem -> IO (Maybe Expr)
 parseElem e = do
                str <- getValue e
                if isJust str
                then return $ readExpr $ fromJust str
                else return $ Nothing
--}
 
 readAndDraw :: Elem -> Canvas -> IO ()
-readAndDraw = undefined
+readAndDraw e c = do
+                  expr <- parseElem e
+                  if isJust expr
+                  then display $ points (fromJust expr) scale size
+                  else error "Unkown Expression"
+    where display p = render c (stroke (path p))
+          scale     = 0.04
+          size      = (canHeight,canWidth)
 
 main = do
     -- Elements
