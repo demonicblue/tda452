@@ -48,6 +48,13 @@ readAndDraw e c = do
           scale     = 0.04
           size      = (canHeight,canWidth)
 
+readAndDiffer :: Elem -> IO ()
+readAndDiffer input = do
+    str <- getProp input "value"
+    let e = fromJust $ readExpr str
+    set input [ prop "value" =: (showExpr $ differentiate e) ]
+        
+
 main = do
     -- Elements
     canvas  <- mkCanvas canWidth canHeight   -- The drawing area
@@ -73,6 +80,7 @@ main = do
     -- Interaction
     Just can <- getCanvas canvas
     onEvent draw  Click $ \_    -> readAndDraw input can
+    onEvent differ  Click $ \_  -> readAndDiffer input
     onEvent input KeyUp $ \code -> when (code==13) $ readAndDraw input can
       -- "Enter" key has code 13
 
