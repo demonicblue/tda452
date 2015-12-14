@@ -5,14 +5,35 @@ import Haste.DOM
 import Haste.Events
 import Haste.Graphics.Canvas
 
-import Pages
+import Data.Maybe
 
+import Pages
 import Expr
 
 
 
 canWidth  = 300
 canHeight = 300
+
+points :: Expr -> Double -> (Int,Int) -> [Point]
+points e sc (w,h) = undefined
+
+pixToReal :: Double -> Double -> Double -> Double
+pixToReal w sc x = (2*f) * (x / w) - f
+    where f = sc * w / 2
+
+realToPix :: Double -> Double -> Double -> Double
+realToPix w sc y = w * (y + f) / (2*f)
+    where f = sc * w / 2
+
+{-
+parseElem :: Elem -> IO (Maybe Expr)
+parseElem e = do
+               str <- getValue e
+               if isJust str
+               then return $ readExpr $ fromJust str
+               else return $ Nothing
+-}
 
 readAndDraw :: Elem -> Canvas -> IO ()
 readAndDraw = undefined
