@@ -1,4 +1,5 @@
 import Test.QuickCheck
+import Data.Maybe
 import Expr
 
 -- Henrik
