@@ -70,14 +70,73 @@ prop_ShowReadExpr e = e `almostEqual` fromJust (readExpr (showExpr e))
 
 -- Henrik
 arbExpr :: Int -> Gen Expr
-arbExpr = undefined
+arbExpr n   | n == 1      = oneof 
+    [
+        return Var,
+        do  r <- choose (0.0,100.0)
+            return $ Num r
+    ] 
+            | otherwise   = oneof 
+    [
+        return Var,
+        do  r <- choose (0.0,100.0)
+            return $ Num r,
+        do  o <- opType
+            e1 <- arbExpr (n-1)
+            e2 <- arbExpr (n-1)
+            return (Op o e1 e2),
+        do  f <- funType
+            e <- arbExpr (n-1)
+            return (Fun f e)
+    ]
+
+opType :: Gen OpType
+opType = elements [Mul, Add]
+
+funType :: Gen FunType
+funType = elements [Sin, Cos]
+
 
 instance Arbitrary Expr where
   arbitrary = sized arbExpr
 
 ---- F ---- Henrik
 simplify :: Expr -> Expr
-simplify = undefined
+simplify (Op t e1 e2)
+        = simplify' (Op t   (simplify e1) (simplify e2))
+simplify (Fun f e1)
+        = simplify' (Fun f  (simplify e1))
+simplify e = e
+
+simplify' :: Expr -> Expr
+simplify' (Op Add (Num n1) (Num n2))     = Num (n1 + n2)
+simplify' e0@(Op Add (Num n) e) 
+        | n == 0    = simplify e
+        | otherwise = e0
+simplify' e0@(Op Add e (Num n))
+        | n == 0    = simplify e
+        | otherwise = e0
+simplify' (Op Mul (Num n1) (Num n2))     = Num (n1 * n2)
+simplify' e0@(Op Mul (Num n) e) 
+        | n == 0    = Num 0
+        | n == 1    = simplify e
+        | otherwise = e0
+simplify' e0@(Op Mul e (Num n))
+        | n == 0    = Num 0
+        | n == 1    = simplify e
+        | otherwise = e0
+simplify' e = e
+
+one = Num 1
+two = Num 2
+e1 = Op Add one one
+e2 = Op Mul one one
+e3 = Op Mul one (Fun Cos Var)
+e4 = Op Mul (Num 42) (Fun Cos Var)
+e5 = Op Mul (Num 0) (Fun Cos Var)
+e6 = Op Add e1 e1
+e7 = Op Add (Fun Cos Var) e6
+
 
 ---- G ---- Matthias
 differentiate :: Expr -> Expr
