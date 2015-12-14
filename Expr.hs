@@ -1,5 +1,6 @@
+module Expr where
+
 import Parsing
-import Test.QuickCheck
 import Data.Char
 import Data.Maybe
 import Control.Monad
@@ -61,19 +62,6 @@ eval (Fun Cos e) x = cos (eval e x)
 ---- D ---- Henrik + Matthias
 readExpr :: String -> Maybe Expr
 readExpr = undefined
-
----- E ---- Matthias
-prop_ShowReadExpr :: Expr -> Bool
-prop_ShowReadExpr e = e `almostEqual` fromJust (readExpr (showExpr e))
-    where almostEqual e1 e2 = abs ((eval' e1) - (eval' e2)) < 0.001
-          eval' e = eval e 3.14
-
--- Henrik
-arbExpr :: Int -> Gen Expr
-arbExpr = undefined
-
-instance Arbitrary Expr where
-  arbitrary = sized arbExpr
 
 ---- F ---- Henrik
 simplify :: Expr -> Expr
