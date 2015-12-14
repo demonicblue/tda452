@@ -16,20 +16,20 @@ canWidth  = 300
 canHeight = 300
 
 points :: Expr -> Double -> (Int,Int) -> [Point]
-points e sc (w,h) = zip pixXs $ map (realToPix height sc) $ map (eval e) $ map (pixToReal width sc) pixXs
-    where 
-         pixXs :: [Double]
-         pixXs = [0.0 .. width]
-         width = fromIntegral w
-         height = fromIntegral h
+points e sc (w,h) = zip xs ys
+    where
+         width   = fromIntegral w
+         height  = fromIntegral h
+         xs      = [0.0 .. width]
+         realxs  = map (pixToReal width sc) xs
+         realys  = map (eval e) realxs
+         ys      = map (realToPix height sc) realys
 
 pixToReal :: Double -> Double -> Double -> Double
-pixToReal w sc x = (2*f) * (x / w) - f
-    where f = sc * w / 2
+pixToReal w sc x = sc * (2*x - w) / 2
 
 realToPix :: Double -> Double -> Double -> Double
-realToPix w sc y = w * (-y + f) / (2*f)
-    where f = sc * w / 2
+realToPix w sc y = -y / sc + w / 2
 
 parseElem :: Elem -> IO (Maybe Expr)
 parseElem e = do
