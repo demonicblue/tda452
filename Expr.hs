@@ -148,14 +148,17 @@ simplify' e = e
 
 ---- G ---- Matthias
 differentiate :: Expr -> Expr
-differentiate (Num _) = Num 0.0
-differentiate (Var)   = Num 1.0
-differentiate (Op Add e1 e2) = (Op Add e1' e2')
+differentiate = simplify . differentiate'
+
+differentiate' :: Expr -> Expr
+differentiate' (Num _) = Num 0.0
+differentiate' (Var)   = Num 1.0
+differentiate' (Op Add e1 e2) = (Op Add e1' e2')
     where e1' = differentiate e1
           e2' = differentiate e2
-differentiate (Op Mul e1 e2) = (Op Add (Op Mul e1' e2) (Op Mul e1 e2'))
+differentiate' (Op Mul e1 e2) = (Op Add (Op Mul e1' e2) (Op Mul e1 e2'))
     where e1' = differentiate e1
           e2' = differentiate e2
 
-differentiate (Fun Sin e) = Fun Cos e
-differentiate (Fun Cos e) = (Op Mul (Num (-1)) (Fun Sin e))
+differentiate' (Fun Sin e) = Fun Cos e
+differentiate' (Fun Cos e) = (Op Mul (Num (-1)) (Fun Sin e))
