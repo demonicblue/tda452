@@ -25,7 +25,7 @@ arbExpr n   | n == 1      = oneof
     ]
 
 opType :: Gen OpType
-opType = elements [Mul, Add]
+opType = elements [Mul, Add, Sub]
 
 funType :: Gen FunType
 funType = elements [Sin, Cos]
