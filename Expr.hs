@@ -12,7 +12,7 @@ data Expr =
   | Op OpType Expr Expr
   | Fun FunType Expr
 
-data OpType  = Mul | Add
+data OpType  = Mul | Add | Sub
 data FunType = Sin | Cos
 
 ---- B ----
@@ -22,7 +22,8 @@ showExpr Var = "x"
 
 showExpr (Op Mul e1 e2) = showP e1 ++ "*" ++ showP e2
     where showP e@(Op Add _ _) = showExprP e
-          showP  e              = showExpr  e
+          showP e@(Op Sub _ _) = showExprP e
+          showP e              = showExpr e
 
 showExpr (Op t e1 e2) = showExpr e1 ++ showOp t ++ showExpr e2
 
@@ -36,6 +37,7 @@ showExprP e = "(" ++ showExpr e ++ ")"
 showOp :: OpType -> String
 showOp Mul = "*"
 showOp Add = " + "
+showOp Sub = " - "
 
 showFun :: FunType -> String
 showFun Sin = "sin "
@@ -56,6 +58,7 @@ eval (Num n) _ = n
 eval (Var) x   = x
 eval (Op Mul e1 e2) x = (eval e1 x) * (eval e2 x)
 eval (Op Add e1 e2) x = (eval e1 x) + (eval e2 x)
+eval (Op Sub e1 e2) x = (eval e1 x) - (eval e2 x)
 eval (Fun Sin e) x = sin (eval e x)
 eval (Fun Cos e) x = cos (eval e x)
 
@@ -71,7 +74,10 @@ readExpr s = do
 <factor> ::= "(" <expr> ")" | <number> -}
 
 parseExpr :: Parser Expr
-parseExpr = foldr1 (Op Add) `fmap` chain term (parseOp '+')
+parseExpr = foldr1 (Op Add) `fmap` chain mterm (parseOp '+')
+
+mterm :: Parser Expr
+mterm = foldr1 (Op Sub) `fmap` chain term (parseOp '-')
 
 term :: Parser Expr
 term = foldr1 (Op Mul) `fmap` chain factor (parseOp '*')
@@ -135,6 +141,10 @@ simplify' e0@(Op Add (Num n) e)
 simplify' e0@(Op Add e (Num n))
         | n == 0    = simplify e
         | otherwise = e0
+simplify' (Op Sub (Num n1) (Num n2))     = Num (n1 - n2)
+simplify' e0@(Op Sub e (Num n))
+        | n == 0    = simplify e
+        | otherwise = e0
 simplify' (Op Mul (Num n1) (Num n2))     = Num (n1 * n2)
 simplify' e0@(Op Mul (Num n) e) 
         | n == 0    = Num 0
@@ -154,6 +164,9 @@ differentiate' :: Expr -> Expr
 differentiate' (Num _) = Num 0.0
 differentiate' (Var)   = Num 1.0
 differentiate' (Op Add e1 e2) = (Op Add e1' e2')
+    where e1' = differentiate e1
+          e2' = differentiate e2
+differentiate' (Op Sub e1 e2) = (Op Sub e1' e2')
     where e1' = differentiate e1
           e2' = differentiate e2
 differentiate' (Op Mul e1 e2) = (Op Add (Op Mul e1' e2) (Op Mul e1 e2'))
