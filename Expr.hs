@@ -156,7 +156,6 @@ e5 = Op Mul (Num 0) (Fun Cos Var)
 e6 = Op Add e1 e1
 e7 = Op Add (Fun Cos Var) e6
 
-
 ---- G ---- Matthias
 differentiate :: Expr -> Expr
 differentiate (Num _) = Num 0.0
@@ -169,5 +168,4 @@ differentiate (Op Mul e1 e2) = (Op Add (Op Mul e1' e2) (Op Mul e1 e2'))
           e2' = differentiate e2
 
 differentiate (Fun Sin e) = Fun Cos e
--- Cos(x)' = - Sin(x) = Sin (x + Pi)
-differentiate (Fun Cos e) = Fun Sin (Op Add e (Num 3.14159265358979323))
+differentiate (Fun Cos e) = (Op Mul (Num -1) (Fun Sin e))
