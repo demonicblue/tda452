@@ -59,6 +59,13 @@ readAndDraw e c sc = do
     where display p = render c (stroke (path p))
           size      = (canHeight,canWidth)
 
+readAndDiffer :: Elem -> IO ()
+readAndDiffer input = do
+    str <- getProp input "value"
+    let e = fromJust $ readExpr str
+    set input [ prop "value" =: (showExpr $ differentiate e) ]
+        
+
 main = do
     -- Elements
     canvas  <- mkCanvas canWidth canHeight   -- The drawing area
@@ -89,6 +96,7 @@ main = do
     -- Interaction
     Just can <- fromElem canvas
     onEvent draw  Click $ \_    -> defaultDraw input zoom can scale
+    onEvent differ  Click $ \_  -> readAndDiffer input
     onEvent zoomI Click $ \_    -> zoomDraw input zoom can (-step)
     onEvent zoomO Click $ \_    -> zoomDraw input zoom can (step)
     onEvent input KeyUp $ \code -> when (code==13) $ defaultDraw input zoom can scale
