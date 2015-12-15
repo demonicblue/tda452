@@ -58,6 +58,7 @@ eval (Num n) _ = n
 eval (Var) x   = x
 eval (Op Mul e1 e2) x = (eval e1 x) * (eval e2 x)
 eval (Op Add e1 e2) x = (eval e1 x) + (eval e2 x)
+eval (Op Sub e1 e2) x = (eval e1 x) - (eval e2 x)
 eval (Fun Sin e) x = sin (eval e x)
 eval (Fun Cos e) x = cos (eval e x)
 
@@ -138,6 +139,10 @@ simplify' e0@(Op Add (Num n) e)
         | n == 0    = simplify e
         | otherwise = e0
 simplify' e0@(Op Add e (Num n))
+        | n == 0    = simplify e
+        | otherwise = e0
+simplify' (Op Sub (Num n1) (Num n2))     = Num (n1 - n2)
+simplify' e0@(Op Sub e (Num n))
         | n == 0    = simplify e
         | otherwise = e0
 simplify' (Op Mul (Num n1) (Num n2))     = Num (n1 * n2)
