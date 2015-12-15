@@ -22,7 +22,8 @@ showExpr Var = "x"
 
 showExpr (Op Mul e1 e2) = showP e1 ++ "*" ++ showP e2
     where showP e@(Op Add _ _) = showExprP e
-          showP  e              = showExpr  e
+          showP e@(Op Sub _ _) = showExprP e
+          showP e              = showExpr e
 
 showExpr (Op t e1 e2) = showExpr e1 ++ showOp t ++ showExpr e2
 
@@ -73,7 +74,10 @@ readExpr s = do
 <factor> ::= "(" <expr> ")" | <number> -}
 
 parseExpr :: Parser Expr
-parseExpr = foldr1 (Op Add) `fmap` chain term (parseOp '+')
+parseExpr = foldr1 (Op Add) `fmap` chain mterm (parseOp '+')
+
+mterm :: Parser Expr
+mterm = foldr1 (Op Sub) `fmap` chain term (parseOp '-')
 
 term :: Parser Expr
 term = foldr1 (Op Mul) `fmap` chain factor (parseOp '*')
@@ -160,6 +164,9 @@ differentiate' :: Expr -> Expr
 differentiate' (Num _) = Num 0.0
 differentiate' (Var)   = Num 1.0
 differentiate' (Op Add e1 e2) = (Op Add e1' e2')
+    where e1' = differentiate e1
+          e2' = differentiate e2
+differentiate' (Op Sub e1 e2) = (Op Sub e1' e2')
     where e1' = differentiate e1
           e2' = differentiate e2
 differentiate' (Op Mul e1 e2) = (Op Add (Op Mul e1' e2) (Op Mul e1 e2'))
