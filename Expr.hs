@@ -146,16 +146,6 @@ simplify' e0@(Op Mul e (Num n))
         | otherwise = e0
 simplify' e = e
 
-one = Num 1
-two = Num 2
-e1 = Op Add one one
-e2 = Op Mul one one
-e3 = Op Mul one (Fun Cos Var)
-e4 = Op Mul (Num 42) (Fun Cos Var)
-e5 = Op Mul (Num 0) (Fun Cos Var)
-e6 = Op Add e1 e1
-e7 = Op Add (Fun Cos Var) e6
-
 ---- G ---- Matthias
 differentiate :: Expr -> Expr
 differentiate (Num _) = Num 0.0
