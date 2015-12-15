@@ -12,7 +12,7 @@ data Expr =
   | Op OpType Expr Expr
   | Fun FunType Expr
 
-data OpType  = Mul | Add
+data OpType  = Mul | Add | Sub
 data FunType = Sin | Cos
 
 ---- B ----
