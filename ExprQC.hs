@@ -56,3 +56,4 @@ e4 = Op Mul (Num 42) (Fun Cos Var)
 e5 = Op Mul (Num 0) (Fun Cos Var)
 e6 = Op Add e1 e1
 e7 = Op Add (Fun Cos Var) e6
+e8 = Op Sub one one
