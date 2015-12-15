@@ -168,4 +168,4 @@ differentiate (Op Mul e1 e2) = (Op Add (Op Mul e1' e2) (Op Mul e1 e2'))
           e2' = differentiate e2
 
 differentiate (Fun Sin e) = Fun Cos e
-differentiate (Fun Cos e) = (Op Mul (Num -1) (Fun Sin e))
+differentiate (Fun Cos e) = (Op Mul (Num (-1)) (Fun Sin e))
