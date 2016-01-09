@@ -47,6 +47,22 @@ almostEqual e1 e2   = abs ((eval' e1) - (eval' e2)) < 0.001
 prop_EvalSimplify :: Expr -> Bool
 prop_EvalSimplify e = e `almostEqual` simplify e
 
+prop_EvalSimplify2 :: Expr -> Bool
+prop_EvalSimplify2 e = prop_EvalSimplify2' $ simplify e
+
+prop_EvalSimplify2' :: Expr -> Bool
+prop_EvalSimplify2' Var                     = True
+prop_EvalSimplify2' (Num _)                 = True
+prop_EvalSimplify2' (Op Mul (Num n) e)
+        | n == 0 || n == 1                  = False
+        | otherwise                         = prop_EvalSimplify2' e
+prop_EvalSimplify2' (Op Mul e (Num n))
+        | n == 0 || n == 1                  = False
+        | otherwise                         = prop_EvalSimplify2' e
+prop_EvalSimplify2' (Op _ (Num _) (Num _))  = False
+prop_EvalSimplify2' (Fun _ e)               = prop_EvalSimplify2' e
+prop_EvalSimplify2' (Op _ e1 e2)            = prop_EvalSimplify2' e1 && prop_EvalSimplify2' e2
+
 one = Num 1
 two = Num 2
 e1 = Op Add one one
